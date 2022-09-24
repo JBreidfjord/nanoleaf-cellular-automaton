@@ -1,17 +1,17 @@
 import random
 dead_gameboard=[ #x means the tile does not exit, dead means the cell is dead and alive means it's fucking alive dibshit
-    ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
+    ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
     ['x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x'],
     ['x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x'],
-    ['x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x'],
-    ['x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x'],
-    ['dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead'],
-    ['dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead'],
-    ['x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x'],
-    ['x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x'],
+    ['x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x'],
+    ['x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x'],
+    ['dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead'],
+    ['dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead'],
+    ['x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x'],
+    ['x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x'],
     ['x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x'],
     ['x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x'],
-    ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
+    ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
 ]
 
 def update_game_panel(row, col, state, gameboard):
@@ -28,11 +28,13 @@ def grab_vert_states(row,col,gameboard):
                     num_alive += 1
     return num_alive #returns how many cells are alive around that cell
 
+    #fix it so it dosnt look past the vailable values with x and y
+
 
 def update_game_12(gameboard):
     for row_num in range(len(gameboard)):
         for col_num in range(len(gameboard[row_num])):#looks at every element in the rows and colums 
-            num_alive = grab_vert_states(row_num,col_num)
+            num_alive = grab_vert_states(row_num,col_num,gameboard)
             if gameboard[row_num][col_num] == 'dead':
                 if num_alive == 4:
                     gameboard[row_num][col_num] = 'alive'
@@ -60,6 +62,7 @@ def create_rand_board(gameboard):
 
 
 def test_board(current_game):
+    is_dead=False
     x=0 #initialise the counter
     while x < 100 and is_dead == False:
         current_game = update_game_12(current_game)
