@@ -1,5 +1,5 @@
 
-dead_gamebord=[ #x means the tile does not exit, dead means the cell is dead and alive means it's fucking alive dibshit
+dead_gameboard=[ #x means the tile does not exit, dead means the cell is dead and alive means it's fucking alive dibshit
     ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
     ['x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x'],
     ['x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x'],
@@ -14,33 +14,33 @@ dead_gamebord=[ #x means the tile does not exit, dead means the cell is dead and
     ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
 ]
 
-def update_game_panel(row, col, state, gamebord):
+def update_game_panel(row, col, state, gameboard):
     #updates a single panel to the game logic
-    gamebord[row][col]=state
+    gameboard[row][col]=state
 
 
-def grab_vert_states(row,col,gamebord):
+def grab_vert_states(row,col,gameboard):
     num_alive = 0
     for y in [-1,0,1]: #looks at cells at the cells vertices
         for x in [-1,0,1]:
             if y != 0 and x != 0: #checks that we arn't looking at the original cell
-                if gamebord[row+x][col+y] == 'alive': 
+                if gameboard[row+x][col+y] == 'alive': 
                     num_alive += 1
     return num_alive #returns how many cells are alive around that cell
 
 
-def update_game_12(gamebord):
-    for row_num in range(len(gamebord)):
-        for col_num in range(len(gamebord[row_num])):#looks at every element in the rows and colums 
+def update_game_12(gameboard):
+    for row_num in range(len(gameboard)):
+        for col_num in range(len(gameboard[row_num])):#looks at every element in the rows and colums 
             num_alive = grab_vert_states(row_num,col_num)
-            if gamebord[row_num][col_num] == 'dead':
+            if gameboard[row_num][col_num] == 'dead':
                 if num_alive == 4:
-                    gamebord[row_num][col_num] = 'alive'
-            if gamebord[row_num][col_num] == 'alive':
+                    gameboard[row_num][col_num] = 'alive'
+            if gameboard[row_num][col_num] == 'alive':
                 if num_alive <= 3:
-                    gamebord[row_num][col_num] == 'dead'
+                    gameboard[row_num][col_num] == 'dead'
                 if num_alive >= 6:
-                    gamebord[row_num][col_num == 'dead']
-    return gamebord
+                    gameboard[row_num][col_num == 'dead']
+    return gameboard
 
 
