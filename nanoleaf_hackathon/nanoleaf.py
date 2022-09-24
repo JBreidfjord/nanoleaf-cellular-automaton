@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import data
+import utils
 
 
 class Color(Enum):
@@ -22,7 +23,7 @@ class Color(Enum):
 class PanelUpdate:
     row: int
     col: int
-    color: Color
+    color: str
     transition_time: int = 1
 
 
@@ -207,7 +208,7 @@ class Nanoleaf:
                     row=row,
                     col=col,
                     controller_id=i,
-                    panel_id=panel.panel_id,
+                    panel_id=panel["panelId"],
                 )
 
     def update(self, updates: list[PanelUpdate]):
@@ -216,14 +217,14 @@ class Nanoleaf:
         Panels not included will remain unchanged.
         """
         controller_frames = {i: [] for i in range(len(self.IPS))}
-
         for update in updates:
             position = self._panel_position_map[(update.row, update.col)]
+            red, green, blue = utils.hex_to_rgb(update.color)
             frame = Frame(
                 panel_id=position.panel_id,
-                red=update.color.value[0],
-                green=update.color.value[1],
-                blue=update.color.value[2],
+                red=red,
+                green=green,
+                blue=blue,
                 transition_time=update.transition_time,
             )
             controller_frames[position.controller_id].append(frame)
