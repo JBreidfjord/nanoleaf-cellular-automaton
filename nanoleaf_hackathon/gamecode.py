@@ -56,6 +56,7 @@ def create_rand_board(gameboard):
             else:
                 good_cell = True
         update_game_panel(turning_cell_row, turning_cell_col, "alive", gameboard)
+    return gameboard
 
 
 def test_board(current_game):
@@ -73,3 +74,12 @@ def test_board(current_game):
         return is_dead
     else:
         return True
+
+current_board = create_rand_board(dead_gameboard)
+while test_board(current_board) != True:
+    current_board = create_rand_board(dead_gameboard)
+
+while test_board(current_board):
+    update_game_12(current_board)
+    print(current_board)
+    input('')
