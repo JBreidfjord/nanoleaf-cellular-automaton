@@ -28,12 +28,12 @@ def grab_vert_states(row,col,gameboard):
                     num_alive += 1
     return num_alive #returns how many cells are alive around that cell
 
-    #fix it so it dosnt look past the vailable values with x and y
+    #fix it so it dosnt look past the variable values with x and y
 
 
 def update_game_12(gameboard):
     for row_num in range(len(gameboard)):
-        for col_num in range(len(gameboard[row_num])):#looks at every element in the rows and colums 
+        for col_num in range(len(gameboard[row_num])):#looks at every element in the rows and columns 
             num_alive = grab_vert_states(row_num,col_num,gameboard)
             if gameboard[row_num][col_num] == 'dead':
                 if num_alive == 4:
