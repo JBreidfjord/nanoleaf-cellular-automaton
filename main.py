@@ -5,6 +5,7 @@ import json
 import random
 import socket
 import time
+from collections import deque
 from dataclasses import dataclass
 from enum import Enum
 
@@ -462,25 +463,42 @@ class Nanoleaf:
             self._send_stream_control_frames(frames, self.IPS[controller_id])
 
 
-# nl = Nanoleaf(demo_mode=False)
-
-
-# # random hex colors
-# colors = ["#92ac1d", "#58f982", "#bf6070", "#0eff1f", "#8d2b5d", "#db684c", "#FFFFFF"]
-
-
 positions: list[tuple[int, int]] = []
 for panels in panel_positions:
     positions.extend(panels)
-# updates = [PanelUpdate(row, col, "#000000") for row, col in positions]
-# nl.update(updates)
 
-# while True:
-#     color = random.choice(colors)
-#     panel = random.choice(positions)
-#     nl.update([PanelUpdate(panel[0], panel[1], color)])
-#     time.sleep(0.1)
-#     nl.update([PanelUpdate(panel[0], panel[1], "#000000")])
+colors = [
+    "#0024ff",
+    "#4d11f8",
+    "#6c00f1",
+    "#8300ea",
+    "#9600e2",
+    "#a500da",
+    "#b300d2",
+    "#c000c9",
+    "#cb00c0",
+    "#d400b7",
+    "#dd00ae",
+    "#e500a5",
+    "#ec009c",
+    "#f20093",
+    "#f7008a",
+    "#fb0081",
+    "#ff0078",
+    "#ff0070",
+    "#ff0067",
+    "#ff005f",
+    "#ff0056",
+    "#ff004e",
+    "#ff0046",
+    "#ff003e",
+    "#ff0036",
+    "#ff002e",
+    "#ff0026",
+    "#ff001c",
+    "#ff0011",
+    "#ff0000",
+]
 
 
 class Adjacent(Enum):
@@ -492,7 +510,7 @@ class Adjacent(Enum):
 
 neighbour_map = {}
 for position in positions:
-    possible_moves = []
+    neighbours = []
     row, col = position
     upright = (row + col) % 2 != 0
     for adjacent in Adjacent:
@@ -501,8 +519,53 @@ for position in positions:
         x, y = adjacent.value
         new_position = (row + y, col + x)
         if new_position in positions:
-            possible_moves.append(new_position)
-    neighbour_map[position] = possible_moves
+            neighbours.append(new_position)
+    neighbour_map[position] = neighbours
+
+
+twelve_adjacent_downright = [
+    # 5,11
+    (0, -1),  # 5,10
+    (-1, 0),  # 4,11
+    (0, 1),  # 5,12
+    (0, 2),  # 5,13
+    (0, -2),  # 5,9
+    (-1, -1),  # 4,10
+    (-1, 1),  # 4,12
+    (-1, -2),  # 4,9
+    (-1, 2),  # 4,13
+    (1, 1),  # 6,12
+    (1, 0),  # 6,11
+    (1, -1),  # 6,10
+]
+twelve_adjacent_upright = [
+    # 4,11
+    (0, -1),  # 4,10
+    (0, 1),  # 4,12
+    (-1, -1),  # 3,10
+    (-1, 0),  # 3,11
+    (-1, 1),  # 3,12
+    (0, 2),  # 4,13
+    (1, 2),  # 5,13
+    (1, 1),  # 5,12
+    (1, 0),  # 5,11
+    (1, -1),  # 5,10
+    (1, -2),  # 5,9
+    (0, -2),  # 4,9
+]
+twelve_neighbour_map = {}
+# Calculate 12-neighbourhood
+for position in positions:
+    neighbours = []
+    row, col = position
+    upright = (row + col) % 2 != 0
+    adjacent_array = twelve_adjacent_upright if upright else twelve_adjacent_downright
+    for adjacent in adjacent_array:
+        x, y = adjacent
+        new_position = (row + y, col + x)
+        if new_position in positions:
+            neighbours.append(new_position)
+    twelve_neighbour_map[position] = neighbours
 
 
 @dataclass
@@ -511,15 +574,20 @@ class Cell:
     col: int
     alive: bool
     gen: int = 0
+    color: str = "#000000"
 
 
 class Game:
     dead_board = {(row, col): Cell(row, col, alive=False) for row, col in positions}
 
-    def __init__(self, version: str = "3"):
+    def __init__(self, version: str = "3", initial_cells: int = 100, test_mode: bool = False):
         self.twelve = version == "12"
-        self.nl = Nanoleaf(demo_mode=False)
-        self.nl.update([PanelUpdate(row, col, "#000000") for row, col in positions])
+        self.initial_cells = initial_cells
+        self.test_mode = test_mode
+        if not self.test_mode:
+            self.nl = Nanoleaf(demo_mode=False)
+            self.nl.update([PanelUpdate(row, col, "#000000") for row, col in positions])
+
         self.board = self.initialize_board()
 
         # self.run_board()
@@ -532,26 +600,44 @@ class Game:
     def run_board(self):
         while not self._is_dead_board(self.board):
             self.board = self.update_12() if self.twelve else self.update()
-            # self.update_panels()
-            print(self.board)
+            if not self.test_mode:
+                self.update_panels()
+            print(max([cell.gen for cell in self.board.values()]))
             time.sleep(0.5)
 
     def initialize_board(self):
         while True:
-            board = self._random_board()
-            for _ in range(100):
+            board_history = deque(maxlen=15)
+            original_board = self._random_board()
+            board = original_board.copy()
+            for i in range(self.initial_cells):
+                print("Generation:", i)
+                board_history.append(board.copy())
                 board = self.update_12(board) if self.twelve else self.update(board)
+                for hist_board in board_history:
+                    if self.board_eq(board, hist_board):
+                        break
                 if self._is_dead_board(board):
                     break
-            if not self._is_dead_board(board):
-                return board  # Made it at least 100 generations
+            if not self._is_dead_board(board) and not board in board_history:
+                return original_board
 
     def _is_dead_board(self, board: dict[tuple[int, int], Cell]):
-        return self.dead_board == board
+        return self.board_eq(board, self.dead_board)
+
+    def board_eq(self, board1: dict[tuple[int, int], Cell], board2: dict[tuple[int, int], Cell]):
+        for cell1, cell2 in zip(board1.values(), board2.values()):
+            if (
+                cell1.alive != cell2.alive
+                or cell1.gen != cell2.gen
+                or cell1.row != cell2.row
+                or cell1.col != cell2.col
+            ):
+                return False
+        return True
 
     def _random_board(self):
-        living_cells = random.randrange(100, 131)
-        living_cell_positions = random.sample(positions, living_cells)
+        living_cell_positions = random.sample(positions, 100)
         board = self.dead_board.copy()
         for position in living_cell_positions:
             board[position] = Cell(*position, alive=True)
@@ -559,10 +645,15 @@ class Game:
 
     def update(self, board: dict[tuple[int, int], Cell] = None):
         board = board if board is not None else self.board
+        orig_board = board.copy()
 
         for (row, col), cell in board.items():
             num_alive_neighbours = len(
-                [neighbour for neighbour in neighbour_map[(row, col)] if board[neighbour].alive]
+                [
+                    neighbour
+                    for neighbour in neighbour_map[(row, col)]
+                    if orig_board[neighbour].alive
+                ]
             )
             if cell.alive:
                 # Under / Overpopulation
@@ -578,19 +669,24 @@ class Game:
 
     def update_12(self, board: dict[tuple[int, int], Cell] = None):
         board = board if board is not None else self.board
+        orig_board = board.copy()
 
         for (row, col), cell in board.items():
             num_alive_neighbours = len(
-                [neighbour for neighbour in neighbour_map[(row, col)] if board[neighbour].alive]
+                [
+                    neighbour
+                    for neighbour in twelve_neighbour_map[(row, col)]
+                    if orig_board[neighbour].alive
+                ]
             )
             if cell.alive:
                 # Under / Overpopulation
-                if 0 <= num_alive_neighbours <= 3 or 6 <= num_alive_neighbours <= 12:
+                if 0 <= num_alive_neighbours <= 3 or 7 <= num_alive_neighbours <= 12:
                     board[(row, col)] = Cell(row, col, alive=False, gen=0)
-                elif 4 <= num_alive_neighbours <= 5:
+                elif 4 <= num_alive_neighbours <= 6:
                     board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
-            # Cell comes alive with exactly 4 neighbours
-            elif num_alive_neighbours == 4:
+            # Cell comes alive with exactly 4/5 neighbours
+            elif num_alive_neighbours == 4 or num_alive_neighbours == 5:
                 board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
 
         return board
@@ -599,7 +695,8 @@ class Game:
         updates = []
         for (row, col), cell in self.board.items():
             if cell.alive:
-                updates.append(PanelUpdate(row, col, "#FFFFFF", 5))
+                color = colors[min(cell.gen, len(colors) - 1)]
+                updates.append(PanelUpdate(row, col, color, 5))
             else:
                 updates.append(PanelUpdate(row, col, "#000000", 5))
 
@@ -607,5 +704,5 @@ class Game:
 
 
 if __name__ == "__main__":
-    game = Game()
+    game = Game(version="12", test_mode=True, initial_cells=100)
     game.run_board()
