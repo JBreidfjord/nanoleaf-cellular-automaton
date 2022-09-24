@@ -21,7 +21,7 @@ def update_game_panel(row, col, state, gameboard):
 
 def grab_vert_states(row,col,gameboard):
     num_alive = 0
-    for y in [-1,0,1]: #looks at cells at the cells vertices
+    for y in [-2,0,2]: #looks at cells at the cells vertices
         for x in [-1,0,1]:
             if y != 0 and x != 0: #checks that we arn't looking at the original cell
                 if gameboard[row+x][col+y] == 'alive': 
