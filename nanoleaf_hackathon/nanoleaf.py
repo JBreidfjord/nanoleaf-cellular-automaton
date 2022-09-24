@@ -82,67 +82,42 @@ class Nanoleaf:
         "kAbYywuZWBWsMrFsOluxbnqAXEQqyMKr",
     ]
 
-    def __init__(self):
-        print("Initializing Nanoleaf...")
-        # controller_data = [
-        #     self._initialize_controller(ip, auth) for ip, auth in zip(self.IPS, self.AUTH_CODES)
-        # ]
-        panels = self._initialize_controller(self.IPS[3], self.AUTH_CODES[3])
-        print("Done initializing Nanoleaf.")
-        # self._map_panel_positions(controller_data)
-        print(panels)
-        self._panel_position_map: dict[tuple[int, int], Position] = {}
-        for j, panel in enumerate(panels):
-            row, col = data.panel_positions[3][j]
-            self._panel_position_map[(row, col)] = Position(
-                row=row,
-                col=col,
-                controller_id=3,
-                panel_id=panel["panelId"],
-            )
-        print(self._panel_position_map)
+    def __init__(self, demo_mode: bool = True):
+        if demo_mode:
+            panels = self._initialize_controller(self.IPS[3], self.AUTH_CODES[3])
+            self._panel_position_map: dict[tuple[int, int], Position] = {}
+            for j, panel in enumerate(panels):
+                row, col = data.panel_positions[3][j]
+                self._panel_position_map[(row, col)] = Position(
+                    row=row,
+                    col=col,
+                    controller_id=3,
+                    panel_id=panel["panelId"],
+                )
+        else:
+            controller_data = [
+                self._initialize_controller(ip, auth) for ip, auth in zip(self.IPS, self.AUTH_CODES)
+            ]
+            self._map_panel_positions(controller_data)
 
-    def _put(self, ip: str, auth: str, endpoint: str, data: dict = {}):
-        # url = self._format_api_url(ip, auth, endpoint)
-        # res = requests.put(url, data=data)
-        # res.raise_for_status()
-        # return res.json()
+    def _request(self, mode: str, ip: str, auth: str, endpoint: str, data: dict = None):
         LISTENER = ip + ":" + str(self._API_PORT)
         try:
             conn = httplib.HTTPConnection(LISTENER)
-            if len(data) != 0:
+            if data is not None:
                 conn.request(
-                    "PUT",
+                    mode,
                     "/api/v1/" + auth + "/" + endpoint,
                     json.dumps(data),
                     {"Content-Type": "application/json"},
                 )
             else:
-                conn.request("PUT", "/" + endpoint)
+                conn.request(mode, "/api/v1/" + auth + "/" + endpoint)
             response = conn.getresponse()
             body = response.read()
-            print(response.status, response.reason)
-            print(body)
+            if len(body) != 0:
+                body = json.loads(body)
             return body
-
-        except (httplib.HTTPException, socket.error) as ex:
-            print(f"Error: {ex}")
-
-    def _get(self, ip: str, auth: str, endpoint: str):
-        # url = self._format_api_url(ip, auth, endpoint)
-        # print(url)
-        # res = requests.get(url)
-        # res.raise_for_status()
-        # return res.json()
-        LISTENER = ip + ":" + str(self._API_PORT)
-        try:
-            conn = httplib.HTTPConnection(LISTENER)
-            conn.request("GET", "/api/v1/" + auth + "/" + endpoint)
-            response = conn.getresponse()
-            body = response.read()
-            print(response.status, response.reason)
-            print(body)
-            return json.loads(body)
 
         except (httplib.HTTPException, socket.error) as ex:
             print(f"Error: {ex}")
@@ -154,9 +129,7 @@ class Nanoleaf:
         """
         Initializes the controller and returns the position data.
         """
-        print(f"Initializing controller at {ip}...")
         self._set_stream_control_mode(ip, auth)
-        print("Control mode set")
         return self._get_device_data(ip, auth)["panelLayout"]["layout"]["positionData"]
 
     def _set_stream_control_mode(self, ip: str, auth: str, version: int = 1):
@@ -170,13 +143,13 @@ class Nanoleaf:
                 "extControlVersion": "v" + str(version),
             }
         }
-        self._put(ip, auth, "effects", body)
+        self._request("PUT", ip, auth, "effects", body)
 
     def _get_device_data(self, ip: str, auth: str) -> dict:
         """
         Gets panel info from the Nanoleaf controller.
         """
-        return self._get(ip, auth, "")
+        return self._request("GET", ip, auth, "")
 
     def _send_stream_control_frames(self, frames: list[Frame], ip: str):
         """
