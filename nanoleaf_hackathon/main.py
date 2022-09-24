@@ -10,25 +10,35 @@ nl = Nanoleaf(demo_mode=False)
 colors = ["#92ac1d", "#58f982", "#bf6070", "#0eff1f", "#8d2b5d", "#db684c", "#FFFFFF"]
 
 
-updates = [PanelUpdate(row, col, "#000000") for row, col in data.panel_positions[3]]
+positions: tuple[int, int] = []
+for panels in data.panel_positions:
+    positions.extend(panels)
+updates = [PanelUpdate(row, col, "#000000") for row, col in positions]
 nl.update(updates)
 
 while True:
     color = random.choice(colors)
-    nl.update([PanelUpdate(4, 1, color)])
-    for i in range(21):
-        original = updates[i]
-        updates[i] = PanelUpdate(original.row, original.col, color)
-        nl.update(updates)
-        updates[i] = original
-        time.sleep(0.2)
+    panel = random.choice(positions)
+    nl.update([PanelUpdate(panel[0], panel[1], color)])
+    time.sleep(0.1)
+    nl.update([PanelUpdate(panel[0], panel[1], "#000000")])
 
-    color = random.choice(colors)
-    nl.update([PanelUpdate(4, 21, color)])
-    for i in range(21, 0, -1):
-        i -= 1
-        original = updates[i]
-        updates[i] = PanelUpdate(original.row, original.col, color)
-        nl.update(updates)
-        updates[i] = original
-        time.sleep(0.2)
+# while True:
+#     color = random.choice(colors)
+#     nl.update([PanelUpdate(4, 1, color)])
+#     for i in range(21):
+#         original = updates[i]
+#         updates[i] = PanelUpdate(original.row, original.col, color)
+#         nl.update(updates)
+#         updates[i] = original
+#         time.sleep(0.2)
+
+#     color = random.choice(colors)
+#     nl.update([PanelUpdate(4, 21, color)])
+#     for i in range(21, 0, -1):
+#         i -= 1
+#         original = updates[i]
+#         updates[i] = PanelUpdate(original.row, original.col, color)
+#         nl.update(updates)
+#         updates[i] = original
+#         time.sleep(0.2)

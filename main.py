@@ -460,6 +460,27 @@ class Nanoleaf:
             self._send_stream_control_frames(frames, self.IPS[controller_id])
 
 
+nl = Nanoleaf(demo_mode=False)
+
+
+# random hex colors
+colors = ["#92ac1d", "#58f982", "#bf6070", "#0eff1f", "#8d2b5d", "#db684c", "#FFFFFF"]
+
+
+positions: tuple[int, int] = []
+for panels in panel_positions:
+    positions.extend(panels)
+updates = [PanelUpdate(row, col, "#000000") for row, col in positions]
+nl.update(updates)
+
+while True:
+    color = random.choice(colors)
+    panel = random.choice(positions)
+    nl.update([PanelUpdate(panel[0], panel[1], color)])
+    time.sleep(0.1)
+    nl.update([PanelUpdate(panel[0], panel[1], "#000000")])
+
+
 dead_gameboard = [
     [
         "x",
@@ -762,8 +783,6 @@ dead_gameboard = [
         "x",
     ],
 ]
-
-nl = Nanoleaf(demo_mode=False)
 
 
 def update_panels(gameboard):
