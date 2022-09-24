@@ -516,7 +516,8 @@ class Cell:
 class Game:
     dead_board = {(row, col): Cell(row, col, alive=False) for row, col in positions}
 
-    def __init__(self):
+    def __init__(self, version: str = "3"):
+        self.twelve = version == "12"
         self.nl = Nanoleaf(demo_mode=False)
         self.nl.update([PanelUpdate(row, col, "#000000") for row, col in positions])
         self.board = self.initialize_board()
@@ -530,7 +531,7 @@ class Game:
 
     def run_board(self):
         while not self._is_dead_board(self.board):
-            self.board = self.update()
+            self.board = self.update_12() if self.twelve else self.update()
             # self.update_panels()
             print(self.board)
             time.sleep(0.5)
@@ -539,7 +540,7 @@ class Game:
         while True:
             board = self._random_board()
             for _ in range(100):
-                board = self.update(board)
+                board = self.update_12(board) if self.twelve else self.update(board)
                 if self._is_dead_board(board):
                     break
             if not self._is_dead_board(board):
@@ -566,11 +567,30 @@ class Game:
             if cell.alive:
                 # Under / Overpopulation
                 if num_alive_neighbours == 0 or num_alive_neighbours == 3:
-                    board[(row, col)] = Cell(row, col, alive=False, gen=cell.gen + 1)
+                    board[(row, col)] = Cell(row, col, alive=False, gen=0)
                 elif num_alive_neighbours == 2:
                     board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
             # Cell comes alive with exactly 2 neighbours
             elif num_alive_neighbours == 2:
+                board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
+
+        return board
+
+    def update_12(self, board: dict[tuple[int, int], Cell] = None):
+        board = board if board is not None else self.board
+
+        for (row, col), cell in board.items():
+            num_alive_neighbours = len(
+                [neighbour for neighbour in neighbour_map[(row, col)] if board[neighbour].alive]
+            )
+            if cell.alive:
+                # Under / Overpopulation
+                if 0 <= num_alive_neighbours <= 3 or 6 <= num_alive_neighbours <= 12:
+                    board[(row, col)] = Cell(row, col, alive=False, gen=0)
+                elif 4 <= num_alive_neighbours <= 5:
+                    board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
+            # Cell comes alive with exactly 4 neighbours
+            elif num_alive_neighbours == 4:
                 board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
 
         return board
