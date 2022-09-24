@@ -327,8 +327,22 @@ def update_game_panel(row, col, state, gameboard):
 
 
 def grab_vert_states(row, col, gameboard):
+    print(f"testing row: {row} and column {col}")
+    print
     num_alive = 0
-    for y in [-2, 0, 2]:  # looks at cells at the cells vertices
+    if row == 5 or row == 6:
+        if col == 22:
+            max_right = 0
+        if col == 21:
+            max_right = 1
+        if col == 0:
+            max_left = 0
+        if col == 1:
+            max_left = -1
+    else:
+        max_right = 2
+        max_left = -2
+    for y in [max_left, 0, max_right]:  # looks at cells at the cells vertices
         for x in [-1, 0, 1]:
             if y != 0 and x != 0:  # checks that we arn't looking at the original cell
                 if gameboard[row + x][col + y] == "alive":
