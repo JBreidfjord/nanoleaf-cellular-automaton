@@ -42,5 +42,3 @@ def update_game_12(gameboard):
                 if num_alive >= 6:
                     gameboard[row_num][col_num == 'dead']
     return gameboard
-
-
