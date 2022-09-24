@@ -17,7 +17,7 @@ dead_gameboard=[ #x means the tile does not exit, dead means the cell is dead an
 def update_game_panel(row, col, state, gameboard):
     #updates a single panel to the game logic
     gameboard[row][col]=state
-
+    return gameboard
 
 def grab_vert_states(row,col,gameboard):
     num_alive = 0
