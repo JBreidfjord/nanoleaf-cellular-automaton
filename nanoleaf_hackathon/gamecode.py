@@ -1,7 +1,6 @@
 import random
 import time
-
-from nanoleaf_hackathon.nanoleaf import Nanoleaf, PanelUpdate
+#from nanoleaf_hackathon.nanoleaf import Nanoleaf, PanelUpdate
 
 dead_gameboard = [
     [
@@ -306,19 +305,19 @@ dead_gameboard = [
     ],
 ]
 
-nl = Nanoleaf(demo_mode=False)
-
-
-def update_panels(gameboard):
-    updates = []
-    for i, row in enumerate(gameboard):
-        for j, value in enumerate(row):
-            if value == "x":
-                continue
-            update = PanelUpdate(i, j, "#FFFFFF" if value == "alive" else "#000000")
-            updates.append(update)
-
-    nl.update(updates)
+#nl = Nanoleaf(demo_mode=False)
+#
+#
+#def update_panels(gameboard):
+#    updates = []
+#    for i, row in enumerate(gameboard):
+#        for j, value in enumerate(row):
+#            if value == "x":
+#                continue
+#            update = PanelUpdate(i, j, "#FFFFFF" if value == "alive" else "#000000")
+#            updates.append(update)
+#
+#    nl.update(updates)
 
 
 def update_game_panel(row, col, state, gameboard):
@@ -386,18 +385,21 @@ def test_board(current_game):
                     break
             if is_dead == False:
                 break
+        x += 1    
     if is_dead:
         return is_dead
     else:
         return True
 
 
-current_board = create_rand_board(dead_gameboard)
-while test_board(current_board) != True:
-    current_board = create_rand_board(dead_gameboard)
+test_gameboard = create_rand_board(dead_gameboard)
+if test_board(test_gameboard):
+    print("survived")
+else:
+    print("died")
 
-while test_board(current_board):
-    update_game_12(current_board)
-    update_panels(current_board)
-    print(current_board)
-    time.sleep(0.5)
+#while test_board(current_board):
+#    update_game_12(current_board)
+#    update_panels(current_board)
+#    print(current_board)
+#    time.sleep(0.5)
