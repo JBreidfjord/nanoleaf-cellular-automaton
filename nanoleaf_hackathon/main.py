@@ -32,4 +32,3 @@ while True:
         nl.update(updates)
         updates[i] = original
         time.sleep(0.2)
-
