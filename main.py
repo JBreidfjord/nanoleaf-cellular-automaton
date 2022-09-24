@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import http.client as httplib
 import json
 import random
@@ -460,420 +462,130 @@ class Nanoleaf:
             self._send_stream_control_frames(frames, self.IPS[controller_id])
 
 
-nl = Nanoleaf(demo_mode=False)
+# nl = Nanoleaf(demo_mode=False)
 
 
-# random hex colors
-colors = ["#92ac1d", "#58f982", "#bf6070", "#0eff1f", "#8d2b5d", "#db684c", "#FFFFFF"]
+# # random hex colors
+# colors = ["#92ac1d", "#58f982", "#bf6070", "#0eff1f", "#8d2b5d", "#db684c", "#FFFFFF"]
 
 
-positions: tuple[int, int] = []
+positions: list[tuple[int, int]] = []
 for panels in panel_positions:
     positions.extend(panels)
-updates = [PanelUpdate(row, col, "#000000") for row, col in positions]
-nl.update(updates)
+# updates = [PanelUpdate(row, col, "#000000") for row, col in positions]
+# nl.update(updates)
 
-while True:
-    color = random.choice(colors)
-    panel = random.choice(positions)
-    nl.update([PanelUpdate(panel[0], panel[1], color)])
-    time.sleep(0.1)
-    nl.update([PanelUpdate(panel[0], panel[1], "#000000")])
-
-
-dead_gameboard = [
-    [
-        "x",
-        "x",
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-    ],
-    [
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-    ],
-    [
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-    ],
-    [
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-        "x",
-    ],
-    [
-        "x",
-        "x",
-        "x",
-        "x",
-        "x",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "dead",
-        "x",
-        "x",
-        "x",
-        "x",
-        "x",
-    ],
-]
+# while True:
+#     color = random.choice(colors)
+#     panel = random.choice(positions)
+#     nl.update([PanelUpdate(panel[0], panel[1], color)])
+#     time.sleep(0.1)
+#     nl.update([PanelUpdate(panel[0], panel[1], "#000000")])
 
 
-def update_panels(gameboard):
-    updates = []
-    for i, row in enumerate(gameboard):
-        for j, value in enumerate(row):
-            if value == "x":
-                continue
-            update = PanelUpdate(i, j, "#FFFFFF" if value == "alive" else "#000000")
-            updates.append(update)
-
-    nl.update(updates)
+class Adjacent(Enum):
+    UP = (0, -1)
+    DOWN = (0, 1)
+    LEFT = (-1, 0)
+    RIGHT = (1, 0)
 
 
-def update_game_panel(row, col, state, gameboard):
-    # updates a single panel to the game logic
-    gameboard[row][col] = state
-    return gameboard
+neighbour_map = {}
+for position in positions:
+    possible_moves = []
+    row, col = position
+    upright = (row + col) % 2 != 0
+    for adjacent in Adjacent:
+        if (upright and adjacent.name == "UP") or (not upright and adjacent.name == "DOWN"):
+            continue
+        x, y = adjacent.value
+        new_position = (row + y, col + x)
+        if new_position in positions:
+            possible_moves.append(new_position)
+    neighbour_map[position] = possible_moves
 
 
-def grab_vert_states(row, col, gameboard):
-    num_alive = 0
-    for y in [-2, 0, 2]:  # looks at cells at the cells vertices
-        for x in [-1, 0, 1]:
-            if y != 0 and x != 0:  # checks that we arn't looking at the original cell
-                if gameboard[row + x][col + y] == "alive":
-                    num_alive += 1
-    return num_alive  # returns how many cells are alive around that cell
-
-    # fix it so it dosnt look past the vailable values with x and y
+@dataclass
+class Cell:
+    row: int
+    col: int
+    alive: bool
+    gen: int = 0
 
 
-def update_game_12(gameboard):
-    for row_num in range(len(gameboard)):
-        for col_num in range(
-            len(gameboard[row_num])
-        ):  # looks at every element in the rows and colums
-            num_alive = grab_vert_states(row_num, col_num, gameboard)
-            if gameboard[row_num][col_num] == "dead":
-                if num_alive == 4:
-                    gameboard[row_num][col_num] = "alive"
-            if gameboard[row_num][col_num] == "alive":
-                if num_alive <= 3:
-                    gameboard[row_num][col_num] == "dead"
-                if num_alive >= 6:
-                    gameboard[row_num][col_num == "dead"]
-    return gameboard
+class Game:
+    dead_board = {(row, col): Cell(row, col, alive=False) for row, col in positions}
 
+    def __init__(self):
+        self.nl = Nanoleaf(demo_mode=False)
+        self.nl.update([PanelUpdate(row, col, "#000000") for row, col in positions])
+        self.board = self.initialize_board()
 
-def create_rand_board(gameboard):
-    cells_to_turn = random.randrange(100, 131)
-    for i in range(0, cells_to_turn):
-        good_cell = False
-        while good_cell == False:
-            turning_cell_row = random.randrange(0, 12)
-            turning_cell_col = random.randrange(0, 23)
-            if (
-                gameboard[turning_cell_row][turning_cell_col] == "x"
-                or gameboard[turning_cell_row][turning_cell_col] == "alive"
-            ):
-                good_cell = False
-            else:
-                good_cell = True
-        update_game_panel(turning_cell_row, turning_cell_col, "alive", gameboard)
-    return gameboard
+        # self.run_board()
 
+        # if loop:
+        #     while True:
+        #         self.board = self.initialize_board()
+        #         self.run_board()
 
-def test_board(current_game):
-    is_dead = False
-    x = 0  # initialise the counter
-    while x < 100 and is_dead == False:
-        current_game = update_game_12(current_game)
-        for row_num in range(len(current_game)):
-            for col_num in range(len(current_game[row_num])):
-                if current_game[row_num][col_num] == "alive":
-                    is_dead = False
+    def run_board(self):
+        while not self._is_dead_board(self.board):
+            self.board = self.update()
+            # self.update_panels()
+            print(self.board)
+            time.sleep(0.5)
+
+    def initialize_board(self):
+        while True:
+            board = self._random_board()
+            for _ in range(100):
+                board = self.update(board)
+                if self._is_dead_board(board):
                     break
-            if is_dead == False:
-                break
-    if is_dead:
-        return is_dead
-    else:
-        return True
+            if not self._is_dead_board(board):
+                return board  # Made it at least 100 generations
+
+    def _is_dead_board(self, board: dict[tuple[int, int], Cell]):
+        return self.dead_board == board
+
+    def _random_board(self):
+        living_cells = random.randrange(100, 131)
+        living_cell_positions = random.sample(positions, living_cells)
+        board = self.dead_board.copy()
+        for position in living_cell_positions:
+            board[position] = Cell(*position, alive=True)
+        return board
+
+    def update(self, board: dict[tuple[int, int], Cell] = None):
+        board = board if board is not None else self.board
+
+        for (row, col), cell in board.items():
+            num_alive_neighbours = len(
+                [neighbour for neighbour in neighbour_map[(row, col)] if board[neighbour].alive]
+            )
+            if cell.alive:
+                # Under / Overpopulation
+                if num_alive_neighbours == 0 or num_alive_neighbours == 3:
+                    board[(row, col)] = Cell(row, col, alive=False, gen=cell.gen + 1)
+                elif num_alive_neighbours == 2:
+                    board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
+            # Cell comes alive with exactly 2 neighbours
+            elif num_alive_neighbours == 2:
+                board[(row, col)] = Cell(row, col, alive=True, gen=cell.gen + 1)
+
+        return board
+
+    def update_panels(self):
+        updates = []
+        for (row, col), cell in self.board.items():
+            if cell.alive:
+                updates.append(PanelUpdate(row, col, "#FFFFFF", 5))
+            else:
+                updates.append(PanelUpdate(row, col, "#000000", 5))
+
+        self.nl.update(updates)
 
 
-current_board = create_rand_board(dead_gameboard)
-while test_board(current_board) != True:
-    current_board = create_rand_board(dead_gameboard)
-
-while test_board(current_board):
-    update_game_12(current_board)
-    update_panels(current_board)
-    print(current_board)
-    time.sleep(0.5)
+if __name__ == "__main__":
+    game = Game()
+    game.run_board()
