@@ -1,5 +1,5 @@
 
-gamebord=[ #x means the tile does not exit, dead means the cell is dead and alive means it's fucking alive dibshit
+dead_gamebord=[ #x means the tile does not exit, dead means the cell is dead and alive means it's fucking alive dibshit
     ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
     ['x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x'],
     ['x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x'],
@@ -14,13 +14,12 @@ gamebord=[ #x means the tile does not exit, dead means the cell is dead and aliv
     ['x','x','x','x','x','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','dead','x','x','x','x','x'],
 ]
 
-def update_game_panel(row, col, state):
+def update_game_panel(row, col, state, gamebord):
     #updates a single panel to the game logic
     gamebord[row][col]=state
 
 
-
-def grab_vert_states(row,col):
+def grab_vert_states(row,col,gamebord):
     num_alive = 0
     for y in [-1,0,1]: #looks at cells at the cells vertices
         for x in [-1,0,1]:
@@ -30,7 +29,7 @@ def grab_vert_states(row,col):
     return num_alive #returns how many cells are alive around that cell
 
 
-def update_game_12():
+def update_game_12(gamebord):
     for row_num in range(len(gamebord)):
         for col_num in range(len(gamebord[row_num])):#looks at every element in the rows and colums 
             num_alive = grab_vert_states(row_num,col_num)
